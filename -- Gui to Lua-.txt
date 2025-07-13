@@ -66,7 +66,7 @@ local function NGLEGA_fake_script() -- ScreenGui.LocalScript
 	local randomizeButton = Instance.new("TextButton")
 	randomizeButton.Size = UDim2.new(0.8, 0, 0, 50)
 	randomizeButton.Position = UDim2.new(0.1, 0, 0.5, 0)
-	randomizeButton.Text = "RANDOMIZE"
+	randomizeButton.Text = "Auto roll/ON"
 	randomizeButton.BackgroundColor3 = Color3.fromRGB(100, 170, 255)
 	randomizeButton.TextColor3 = Color3.new(0, 0, 0)
 	randomizeButton.Font = Enum.Font.SourceSansBold

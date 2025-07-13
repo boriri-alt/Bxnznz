@@ -96,67 +96,62 @@ local function NGLEGA_fake_script() -- ScreenGui.LocalScript
 		["Primal Egg"] = {"Parasaurolophus", "Iguanodon", "Pachycephalosaurus", "Dilophosaurus", "Ankylosaurus", "Spinosaurus"}
 	}
 
-	local randomizeButton = script.Parent:WaitForChild("RandomizeButton")
-	local resultLabel = script.Parent:WaitForChild("ResultLabel")
-
-	-- ESP Part creation
-	local function createESP(name, parent)
-		local billboardGui = Instance.new("BillboardGui")
-		billboardGui.Name = "PetESP"
-		billboardGui.Size = UDim2.new(0, 200, 0, 50)
-		billboardGui.StudsOffset = Vector3.new(0, 2, 0)
-		billboardGui.AlwaysOnTop = true
-
-		local textLabel = Instance.new("TextLabel")
-		textLabel.Size = UDim2.new(1, 0, 1, 0)
-		textLabel.BackgroundTransparency = 1
-		textLabel.TextScaled = true
-		textLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
-		textLabel.Font = Enum.Font.FredokaOne
-		textLabel.Text = name
-		textLabel.Parent = billboardGui
-
-		local part = Instance.new("Part")
-		part.Anchored = true
-		part.CanCollide = false
-		part.Size = Vector3.new(1,1,1)
-		part.Transparency = 1
-		part.CFrame = CFrame.new(workspace.CurrentCamera.CFrame.Position + Vector3.new(0, 5, -5))
-		part.Parent = workspace
-
-		billboardGui.Parent = part
-	end
-
-	-- Predict and show result in GUI and ESP
-	local function predictPet()
-		local eggNames = {}
-		for egg in pairs(eggs) do
-			table.insert(eggNames, egg)
+	-- Function to generate a random pet from egg name
+	local function getRandomPet(eggName)
+		local petList = eggs[eggName]
+		if petList then
+			return petList[math.random(1, #petList)]
+		else
+			return "Unknown"
 		end
-
-		local rollDuration = 2
-		local interval = 0.1
-		local elapsed = 0
-
-		coroutine.wrap(function()
-			while elapsed < rollDuration do
-				local selectedEgg = eggNames[math.random(1, #eggNames)]
-				local petList = eggs[selectedEgg]
-				local selectedPet = petList[math.random(1, #petList)]
-				resultLabel.Text = "🎲 " .. selectedEgg .. " → 🐾 " .. selectedPet
-				task.wait(interval)
-				elapsed += interval
-			end
-
-			local finalEgg = eggNames[math.random(1, #eggNames)]
-			local finalPet = eggs[finalEgg][math.random(1, #eggs[finalEgg])]
-			resultLabel.Text = "🐣 " .. finalEgg .. " → 🐾 " .. finalPet
-
-			-- Create ESP tag
-			createESP("🐣 " .. finalEgg .. "\n🐾 " .. finalPet, workspace)
-		end)()
 	end
 
-	randomizeButton.MouseButton1Click:Connect(predictPet)
+	-- Create ESP GUI on top of an egg part
+	local function createESP(eggPart, eggName)
+		if eggPart:FindFirstChild("EggESP") then return end
+
+		local billboard = Instance.new("BillboardGui")
+		billboard.Name = "EggESP"
+		billboard.AlwaysOnTop = true
+		billboard.Size = UDim2.new(0, 200, 0, 60)
+		billboard.StudsOffset = Vector3.new(0, 3, 0)
+		billboard.Parent = eggPart
+
+		local label = Instance.new("TextLabel")
+		label.Name = "PredictionLabel"
+		label.Size = UDim2.new(1, 0, 1, 0)
+		label.BackgroundTransparency = 1
+		label.TextColor3 = Color3.fromRGB(255, 255, 0)
+		label.TextStrokeTransparency = 0.4
+		label.TextScaled = true
+		label.Font = Enum.Font.FredokaOne
+		label.Text = "🥚 " .. eggName .. "\n🐾 Predicting..."
+		label.Parent = billboard
+	end
+
+	-- Update ESP label with new random pet
+	local function updatePrediction(eggPart, eggName)
+		local esp = eggPart:FindFirstChild("EggESP")
+		if esp and esp:FindFirstChild("PredictionLabel") then
+			local pet = getRandomPet(eggName)
+			esp.PredictionLabel.Text = "🥚 " .. eggName .. "\n🔮 " .. pet
+		end
+	end
+
+	-- Scan for eggs in workspace and update ESP
+	local function scanAndPredict()
+		for _, obj in ipairs(workspace:GetDescendants()) do
+			if obj:IsA("BasePart") and eggs[obj.Name] then
+				createESP(obj, obj.Name)
+				updatePrediction(obj, obj.Name)
+			end
+		end
+	end
+
+	-- Update prediction every 5 seconds
+	while true do
+		scanAndPredict()
+		task.wait(5)
+	end
     end
 coroutine.wrap(NGLEGA_fake_script)()

@@ -1,0 +1,233 @@
+-- Gui to Lua
+-- Version: 3.2
+
+-- Instances:
+
+local ScreenGui = Instance.new("ScreenGui")
+local Frame = Instance.new("Frame")
+
+--Properties:
+
+ScreenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+ScreenGui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
+
+Frame.Parent = ScreenGui
+Frame.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Frame.BorderColor3 = Color3.fromRGB(0, 0, 0)
+Frame.BorderSizePixel = 0
+Frame.Position = UDim2.new(0, 0, 0.22475569, 0)
+Frame.Size = UDim2.new(0, 0, 0, 100)
+
+-- Scripts:
+
+local function NGLEGA_fake_script() -- ScreenGui.LocalScript 
+	local script = Instance.new('LocalScript', ScreenGui)
+
+	-- Create the main ScreenGui
+	local screenGui = Instance.new("ScreenGui")
+	screenGui.Name = "PetPredictorGui"
+	screenGui.Parent = game.Players.LocalPlayer:WaitForChild("PlayerGui")
+	screenGui.ResetOnSpawn = false
+
+	-- Main Frame
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.new(0, 250, 0, 150)
+	frame.Position = UDim2.new(0.5, -125, 0.5, -75)
+	frame.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+	frame.BorderSizePixel = 0
+	frame.Active = true
+	frame.Draggable = true -- Enables dragging
+	frame.Parent = screenGui
+
+	-- Title Label
+	local title = Instance.new("TextLabel")
+	title.Size = UDim2.new(1, -30, 0, 30)
+	title.Position = UDim2.new(0, 10, 0, 5)
+	title.BackgroundTransparency = 1
+	title.Text = "PET PREDICTOR"
+	title.TextColor3 = Color3.new(1, 1, 1)
+	title.TextScaled = true
+	title.Font = Enum.Font.SourceSansBold
+	title.TextXAlignment = Enum.TextXAlignment.Left
+	title.Parent = frame
+
+	-- Close Button
+	local closeButton = Instance.new("TextButton")
+	closeButton.Size = UDim2.new(0, 25, 0, 25)
+	closeButton.Position = UDim2.new(1, -30, 0, 5)
+	closeButton.Text = "X"
+	closeButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+	closeButton.TextColor3 = Color3.new(1, 1, 1)
+	closeButton.Font = Enum.Font.SourceSansBold
+	closeButton.TextScaled = true
+	closeButton.Parent = frame
+
+	-- Randomize Button
+	local randomizeButton = Instance.new("TextButton")
+	randomizeButton.Size = UDim2.new(0.8, 0, 0, 50)
+	randomizeButton.Position = UDim2.new(0.1, 0, 0.5, 0)
+	randomizeButton.Text = "RANDOMIZE"
+	randomizeButton.BackgroundColor3 = Color3.fromRGB(100, 170, 255)
+	randomizeButton.TextColor3 = Color3.new(0, 0, 0)
+	randomizeButton.Font = Enum.Font.SourceSansBold
+	randomizeButton.TextScaled = true
+	randomizeButton.Parent = frame
+
+	-- Close functionality
+	closeButton.MouseButton1Click:Connect(function()
+		frame.Visible = false
+	end)
+
+	-- Randomize function example
+	randomizeButton.MouseButton1Click:Connect(function()
+		print("Randomizing pet...")
+		-- You can add your logic here
+	end)
+
+	local eggs = {
+		["Common Egg"] = {"Dog", "Golden Lab", "Bunny"},
+		["Mythical Egg"] = {"Grey Mouse", "Brown Mouse", "Squirrel", "Red Giant Ant"},
+		["Bug Egg"] = {"Snail", "Giant Ant", "Caterpillar", "Praying Mantis"},
+		["Anti-Bee Egg"] = {"Disco Bee", "Butterfly", "Moth", "Tarantula Hawk", "Wasp"},
+		["Common Summer Egg"] = {"Starfish", "Seagull", "Crab"},
+		["Rare Summer Egg"] = {"Flamingo", "Toucan", "Sea Turtle", "Orangutan", "Seal"},
+		["Paradise Egg"] = {"Ostrich", "Peacock", "Capybara", "Scarlet Macaw", "Mini Octopus"},
+		["Dinosaur Egg"] = {"Raptor", "Triceratops", "Stegosaurus", "Pterodactyl", "Brontosaurus", "T-Rex"},
+		["Primal Egg"] = {"Parasaurolophus", "Iguanodon", "Pachycephalosaurus", "Dilophosaurus", "Ankylosaurus", "Spinosaurus"}
+	}
+
+	local randomizeButton = script.Parent:WaitForChild("RandomizeButton")
+	local resultLabel = script.Parent:WaitForChild("ResultLabel")
+
+	local function predictPet()
+		local eggNames = {}
+		for egg in pairs(eggs) do
+			table.insert(eggNames, egg)
+		end
+
+		local rollDuration = 2
+		local interval = 0.1
+		local elapsed = 0
+
+		coroutine.wrap(function()
+			while elapsed < rollDuration do
+				local selectedEgg = eggNames[math.random(1, #eggNames)]
+				local petList = eggs[selectedEgg]
+				local selectedPet = petList[math.random(1, #petList)]
+				resultLabel.Text = "🎲 " .. selectedEgg .. " → 🐾 " .. selectedPet
+				task.wait(interval)
+				elapsed += interval
+			end
+
+			local finalEgg = eggNames[math.random(1, #eggNames)]
+			local finalPet = eggs[finalEgg][math.random(1, #eggs[finalEgg])]
+			resultLabel.Text = "🐣 " .. finalEgg .. " → 🐾 " .. finalPet
+		end)()
+	end
+
+	randomizeButton.MouseButton1Click:Connect(predictPet)
+end
+coroutine.wrap(NGLEGA_fake_script)()
+
+-- Egg and Pet ESP + Prediction Script
+-- Put this in: StarterPlayer > StarterPlayerScripts (LocalScript)
+
+local RunService = game:GetService("RunService")
+local Workspace = game:GetService("Workspace")
+local Camera = Workspace.CurrentCamera
+
+-- Prediction (simulated example)
+local EggPredictions = {
+	["Basic Egg"] = "Carrot Pet",
+	["Golden Egg"] = "Golden Pig",
+	["Mystery Egg"] = "Random Pet"
+}
+
+-- Store ESP visuals
+local ESPItems = {}
+
+-- Create ESP visuals for a part
+local function createESP(part, displayText)
+	local box = Drawing.new("Square")
+	box.Color = Color3.fromRGB(0, 255, 0)
+	box.Thickness = 1
+	box.Filled = false
+	box.Transparency = 1
+	box.Visible = true
+
+	local label = Drawing.new("Text")
+	label.Text = displayText or "Unknown"
+	label.Color = Color3.fromRGB(255, 255, 255)
+	label.Size = 16
+	label.Center = true
+	label.Outline = true
+	label.Visible = true
+
+	ESPItems[part] = {box = box, label = label}
+end
+
+-- Remove visuals when part is gone
+local function removeESP(part)
+	if ESPItems[part] then
+		ESPItems[part].box:Remove()
+		ESPItems[part].label:Remove()
+		ESPItems[part] = nil
+	end
+end
+
+-- Get predicted pet name
+local function getPrediction(eggName)
+	return EggPredictions[eggName] or "Unknown Pet"
+end
+
+-- Check if model is egg or pet
+local function isEggOrPet(model)
+	local name = model.Name:lower()
+	return name:find("egg") or name:find("pet")
+end
+
+-- Update ESP visuals
+RunService.RenderStepped:Connect(function()
+	for part, visuals in pairs(ESPItems) do
+		if part and part:IsDescendantOf(Workspace) then
+			local pos, onScreen = Camera:WorldToViewportPoint(part.Position)
+			if onScreen then
+				visuals.box.Size = Vector2.new(50, 50)
+				visuals.box.Position = Vector2.new(pos.X - 25, pos.Y - 25)
+				visuals.box.Visible = true
+
+				visuals.label.Position = Vector2.new(pos.X, pos.Y - 35)
+				visuals.label.Visible = true
+			else
+				visuals.box.Visible = false
+				visuals.label.Visible = false
+			end
+		else
+			removeESP(part)
+		end
+	end
+end)
+
+-- Scan the map for eggs and pets
+local function scanGame()
+	for _, obj in pairs(Workspace:GetDescendants()) do
+		if obj:IsA("BasePart") and obj.Parent and isEggOrPet(obj.Parent) then
+			if not ESPItems[obj] then
+				local model = obj.Parent
+				local prediction = ""
+				if model.Name:lower():find("egg") then
+					prediction = "Egg → " .. getPrediction(model.Name)
+				else
+					prediction = "Pet: " .. model.Name
+				end
+				createESP(obj, prediction)
+			end
+		end
+	end
+end
+
+-- Rescan every few seconds
+while true do
+	scanGame()
+	wait(4)
+end

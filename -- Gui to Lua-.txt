@@ -157,7 +157,7 @@ local function NGLEGA_fake_script() -- ScreenGui.LocalScript
 		end
 	end
 
-	-- Keep refreshing predictions every 5s
+	-- Keep refreshing predictions every 1s
 	while true do
 		scanWorkspace()
 		task.wait(5)
